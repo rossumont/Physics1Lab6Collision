@@ -4,284 +4,167 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>1D Collision Lab II</title>
+<title>1D Collision Lab I</title>
 <style>
 :root{
-  --bg:#0b1220; --card:#111a2e; --card2:#16223b; --line:#24324f; --text:#e5ecf6; --muted:#93a4c3;
-  --accent:#22c55e; --z1:#38bdf8; --z2:#f472b6; --m1:#60a5fa; --m2:#fb923c; --warn:#fbbf24; --bad:#f87171;
+  --bg:#0B1A2B; --panel:#0E2136; --panel2:#12294A; --line:#2A3F5C; --grid:rgba(140,170,210,.07);
+  --text:#F2EEE3; --muted:#9AA8BC; --green:#7FD4A8; --amber:#E8B23A; --bad:#F08A8A;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
 }
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;}
+html,body{margin:0;height:100%}
 body{
   background:var(--bg);
-  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
-  background-size:24px 24px;
-  color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Sarabun","Noto Sans Thai",Roboto,sans-serif;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:34px 34px;
+  color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Sarabun","Noto Sans Thai",sans-serif;
   height:100dvh;display:flex;flex-direction:column;overflow:hidden;
 }
-header{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(17,26,46,.95);border-bottom:1px solid var(--line);flex-wrap:wrap}
-header h1{font-size:17px;margin:0;flex:1;min-width:180px;user-select:none}
-header h1 small{display:block;font-size:12px;color:var(--muted);font-weight:400}
-.btn{background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:9px 14px;font-size:15px;cursor:pointer;font-family:inherit}
-.btn:active{transform:scale(.97)}
-.btn.primary{background:#15803d;border-color:#16a34a}
-.btn.danger{background:#7f1d1d;border-color:#b91c1c}
-.btn.small{padding:6px 10px;font-size:13px}
-.btn:disabled{opacity:.45;cursor:not-allowed}
-nav.tabs{display:flex;gap:6px;padding:8px 12px 0}
-nav.tabs button{flex:1;background:transparent;border:1px solid var(--line);border-bottom:none;color:var(--muted);padding:10px;border-radius:10px 10px 0 0;font-size:15px;font-family:inherit;cursor:pointer}
-nav.tabs button.on{background:var(--card);color:var(--text);font-weight:600}
-main{flex:1;min-height:0;padding:0 12px 12px;display:flex;flex-direction:column}
-.tab{display:none;flex:1;min-height:0;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:0 0 12px 12px;padding:12px}
-.tab.on{display:flex;flex-direction:column;gap:12px}
-.card{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px}
-.card h3{margin:0 0 8px;font-size:15px;color:var(--muted);font-weight:600}
-#expCard{flex:1;display:flex;flex-direction:column;min-height:420px;padding:10px}
-#canvasWrap{position:relative;flex:1;min-height:200px;overflow:hidden}
+.mono{font-family:var(--mono)}
+header{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+header .tt{flex:1;min-width:0}
+header h1{margin:0;font-size:19px;font-weight:700;user-select:none}
+header .sub{font-size:13px;color:var(--muted);margin-top:2px}
+.obtn{background:transparent;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:15px;font-family:inherit;cursor:pointer;min-width:52px}
+.obtn.on{border-color:var(--amber);color:var(--amber)}
+main{flex:1;min-height:0;display:flex;flex-direction:column;overflow-y:auto;padding:0 14px 10px}
+#stage{position:relative;flex:1 1 auto;min-height:220px}
 #cv{position:absolute;inset:0;width:100%;height:100%}
-#statusBadge{position:absolute;right:10px;bottom:8px;font-size:13px;color:var(--muted);background:rgba(11,18,32,.7);padding:3px 8px;border-radius:8px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-label.opt{display:flex;gap:8px;align-items:flex-start;padding:8px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;cursor:pointer;font-size:14px}
-label.opt input{margin-top:3px;transform:scale(1.2)}
-select,input[type=number],input[type=text],input[type=password],input[type=email]{background:#0b1220;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px 8px;font-size:15px;font-family:inherit}
-.kv{font-size:14px;color:var(--muted)} .kv b{color:var(--text)}
-.sw{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.swBox{border-radius:12px;padding:10px;text-align:center;border:2px solid var(--line);background:#0b1220}
-.swBox.z1{border-color:var(--z1)} .swBox.z2{border-color:var(--z2)}
-.swBox .lbl{font-size:13px;color:var(--muted)}
-.swBox .time{font-size:30px;font-variant-numeric:tabular-nums;font-weight:700;margin:4px 0}
-.swBox.run .time{color:var(--accent)}
-.swBtn{width:100%;padding:12px 8px;font-size:17px;border-radius:12px;border:none;color:#fff;font-weight:700;font-family:inherit;cursor:pointer;touch-action:manipulation}
-.z1 .swBtn{background:#0369a1} .z2 .swBtn{background:#be185d}
-.swBox.run .swBtn{background:#b91c1c}
-.msg{font-size:14px;min-height:20px;color:var(--warn)}
-table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
-th,td{border:1px solid var(--line);padding:6px 6px;text-align:center;white-space:nowrap}
-th{background:#0b1220;color:var(--muted);font-weight:600;white-space:normal;min-width:56px}
-td input{width:90px;text-align:center}
-.tblWrap{overflow-x:auto}
-.teacherOnly{display:none!important}
-body.teacher .teacherOnly{display:revert!important}
-body.teacher th.teacherOnly,body.teacher td.teacherOnly{display:table-cell!important;background:rgba(251,191,36,.08);color:var(--warn)}
-.guide h2{font-size:18px;margin:4px 0 8px}
-.guide h3{color:var(--z1)}
-.guide ol,.guide ul{margin:6px 0;padding-left:22px;line-height:1.6}
-.formula{background:#0b1220;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:6px 0;font-size:16px;line-height:1.8;overflow-x:auto}
-.credit{text-align:center;font-size:12px;color:var(--muted);line-height:1.6;margin-top:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px 18px;padding:8px 0;border-top:1px solid var(--line)}
+.grp{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.grp .gl{font-family:var(--mono);font-size:13px;color:var(--muted);margin-right:2px;white-space:nowrap}
+.chip{font-family:var(--mono);font-size:15px;background:var(--panel);color:var(--text);border:1.5px solid var(--line);border-radius:999px;padding:6px 11px;cursor:pointer;white-space:nowrap}
+.chip.sel{border-color:var(--green);color:var(--green);background:rgba(127,212,168,.08)}
+.chip:disabled{opacity:.45;cursor:not-allowed}
+#list{border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:28px minmax(90px,1.1fr) 1fr 1fr 30px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.row .n{font-family:var(--mono);color:var(--muted)}
+.row .set{font-family:var(--mono);font-size:13px;color:var(--muted);line-height:1.4}
+.cell input{width:100%;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-family:var(--mono);font-size:17px}
+.cell input::placeholder{color:#5D6E86}
+.cell input:disabled{opacity:.6}
+.cell .v{font-family:var(--mono);font-size:13px;color:var(--green);margin-top:3px;min-height:16px}
+.cell .ans{font-family:var(--mono);font-size:12px;color:var(--amber);display:none}
+body.teacher .cell .ans{display:block}
+.x{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer}
+.listTop{display:flex;justify-content:flex-end;gap:8px;padding-top:6px}
+.lnk{background:none;border:none;color:var(--muted);font-family:var(--mono);font-size:12px;cursor:pointer;text-decoration:underline}
+footer{border-top:1px solid var(--line);background:rgba(11,26,43,.96);padding:8px 14px calc(6px + env(safe-area-inset-bottom))}
+.swbar{display:flex;align-items:center;justify-content:center;gap:12px 22px;flex-wrap:wrap}
+.cmd{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px 18px;font-size:17px;font-family:inherit;cursor:pointer}
+.sw{display:flex;align-items:center;gap:8px}
+.swCol{display:flex;flex-direction:column;align-items:center}
+.sw3 .swTime{font-size:24px;min-width:118px} .sw3 .play{width:58px;height:50px} .sw3 .rst{width:46px;height:50px} .sw3 .swn{font-size:20px}
+.swbar.three .cmd{order:-1}
+@media (max-width:1100px){ .swbar.three .cmd{width:100%;padding:9px} .swbar.three{gap:8px 14px} .sw3{gap:6px} .sw3 .swTime{font-size:21px;min-width:104px} .sw3 .play{width:50px;height:46px} .sw3 .rst{width:42px;height:46px} }
+.swHist{font-family:var(--mono);font-size:13px;color:var(--muted);min-height:16px;white-space:nowrap}
+.swn{font-family:var(--mono);font-size:22px}
+.swTime{font-family:var(--mono);font-size:28px;font-weight:600;min-width:140px;text-align:center;letter-spacing:.5px}
+.swTime.run{color:var(--green)}
+.play{background:#3F7A5A;border:1.5px solid var(--green);color:#fff;border-radius:12px;width:76px;height:52px;font-size:22px;cursor:pointer;touch-action:manipulation}
+.play.run{background:#7A5A1E;border-color:var(--amber)}
+.rst{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:12px;width:56px;height:52px;font-size:22px;cursor:pointer}
+.credit{text-align:center;font-size:12px;color:var(--muted);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .modalBg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:12px}
 .modalBg.on{display:flex}
-.modal{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;width:min(560px,100%);max-height:90dvh;overflow:auto}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;width:min(520px,100%);max-height:90dvh;overflow:auto}
 .modal h2{margin:0 0 10px;font-size:18px}
-.field{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}
-#linkOut{width:100%;font-size:12px;margin-top:6px}
-.lockNote{font-size:12px;color:var(--warn)}
-.bigIn{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.bigIn label{display:flex;flex-direction:column;gap:4px;font-size:15px;color:var(--muted);font-weight:600}
-.bigIn select,.bigIn input{font-size:24px;padding:10px;font-weight:700;width:100%;min-width:0}
-.condRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-label.opt.sm{font-size:13px;padding:6px 10px;margin:0;align-items:center}
-label.opt.sm input{margin-top:0;transform:none}
-@media (max-width:520px){.swBox .time{font-size:28px} header h1{font-size:15px}}
+.field{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.modal input{background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px;font-size:15px;font-family:var(--mono)}
+.mrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.msg{font-size:13px;color:var(--amber);min-height:18px;margin-top:6px}
+#linkOut{width:100%;margin-top:8px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;font-size:12px;font-family:var(--mono)}
+details summary{cursor:pointer;font-size:14px;margin-top:12px}
+@media (max-width:800px) and (min-width:561px){ .sw3 .swTime{font-size:19px;min-width:94px} .sw3 .play{width:46px} .sw3 .rst{width:40px} .sw3 .swn{font-size:18px} }
+@media (max-width:560px){
+  .swTime{font-size:22px;min-width:110px} .swbar .cmd{order:-1;width:100%} .cmd{padding:10px 12px;font-size:15px} .play{width:62px} .rst{width:48px}
+  .row{grid-template-columns:22px 1fr 1fr 24px} .row .set{grid-column:2 / span 2}
+  .credit{white-space:normal;font-size:11px}
+}
 </style>
 </head>
 <body>
 <header>
-  <h1 id="title"><span data-i="title"></span><small data-i="subtitle"></small></h1>
-  <button class="btn small" id="langBtn">ไทย</button>
-  <button class="btn small" id="fsBtn" data-i="fullscreen"></button>
-  <button class="btn small" id="teacherBtn" data-i="teacher"></button>
+  <div class="tt" id="titleBox"><h1 data-i="title"></h1><div class="sub" data-i="sub"></div></div>
+  <button class="obtn mono" id="langBtn"></button>
+  <button class="obtn" id="teacherBtn" data-i="teacher"></button>
 </header>
-<nav class="tabs">
-  <button data-tab="exp" class="on" data-i="tabExp"></button>
-  <button data-tab="data" data-i="tabData"></button>
-  <button data-tab="guide" data-i="tabGuide"></button>
-</nav>
+
 <main>
-  <!-- EXPERIMENT -->
-  <section class="tab on" id="tab-exp">
-    <div class="card" id="expCard">
-      <div id="canvasWrap"><canvas id="cv"></canvas><div id="statusBadge"></div></div>
-      <div class="sw">
-        <div class="swBox z1" id="sw1"><div class="lbl" data-i="sw1lbl"></div><div class="time">0.00 s</div><button class="swBtn" data-i="startStop"></button></div>
-        <div class="swBox z2" id="sw2"><div class="lbl" data-i="sw2lbl"></div><div class="time">0.00 s</div><button class="swBtn" data-i="startStop"></button></div>
-      </div>
-      <div class="row" style="margin-top:8px;justify-content:center">
-        <button class="btn primary" id="launchBtn" data-i="launch"></button>
-        <button class="btn" id="resetBtn" data-i="reset"></button>
-        <button class="btn" id="swReset" data-i="swReset"></button>
-        <button class="btn primary" id="saveBtn" data-i="save"></button>
-        <span class="msg" id="msg"></span>
-      </div>
-    </div>
-    <div class="grid">
-      <div class="card">
-        <h3 data-i="setup"></h3>
-        <div class="bigIn">
-          <label><span>m₁</span><select id="m1Sel"></select></label>
-          <label><span>m₂</span><select id="m2Sel"></select></label>
-          <label><span>u₁ (m/s)</span><input type="number" id="u1In" min="0.05" max="0.60" step="0.01" value="0.25" inputmode="decimal"></label>
-        </div>
-        <div class="lockNote" id="lockNote"></div>
-        <div class="condRow">
-          <label class="opt sm"><input type="radio" name="cond" value="1" checked><span data-i="cond1"></span></label>
-          <label class="opt sm"><input type="radio" name="cond" value="2"><span><span data-i="cond2"></span><b id="eShow"></b></span></label>
-        </div>
-        <div class="row" style="margin-top:8px">
-          <label class="row kv" style="gap:4px"><input type="checkbox" id="strobe"> <span data-i="strobe"></span></label>
-        </div>
-        <div class="kv" style="margin-top:8px"><span data-i="dists"></span></div>
-        <div class="kv" style="margin-top:6px" data-i="keys"></div>
-        <div class="teacherOnly card" style="margin-top:8px" id="truthBox"></div>
-      </div>
-    </div>
-    <div class="credit" id="creditExp"></div>
-  </section>
-
-  <!-- DATA -->
-  <section class="tab" id="tab-data">
-    <div class="card"><h3 data-i="tbl1"></h3><div class="tblWrap" id="tbl1"></div></div>
-    <div class="card"><h3><span data-i="tbl2"></span></h3><div class="tblWrap" id="tbl2"></div></div>
-    <div class="row">
-      <button class="btn" id="csvBtn" data-i="csv"></button>
-      <button class="btn danger" id="clearBtn" data-i="clear"></button>
-    </div>
-    <div class="kv" data-i="dataNote"></div>
-  </section>
-
-  <!-- GUIDE -->
-  <section class="tab guide" id="tab-guide"><div id="guideBox"></div></section>
+  <div id="stage"><canvas id="cv"></canvas></div>
+  <div class="chips" id="chips"></div>
 </main>
 
-<!-- TEACHER MODAL -->
-<div class="modalBg" id="tModal">
-  <div class="modal">
-    <h2 data-i="tTitle"></h2>
-    <div id="pwArea">
-      <div class="row"><input type="password" id="pwIn" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" style="flex:1"><button class="btn primary" id="pwOk">OK</button></div>
-      <div class="kv" data-i="pwHint" style="margin-top:6px"></div>
-      <div class="msg" id="pwMsg"></div>
-    </div>
-    <div id="tArea" style="display:none">
-      <div class="field"><span data-i="tM1"></span><select id="tM1"></select></div>
-      <div class="field"><span data-i="tM2"></span><select id="tM2"></select></div>
-      <div class="field"><span data-i="tE"></span><input type="number" id="tE" min="0.05" max="0.95" step="0.05" style="width:90px"></div>
-      <div class="field" style="display:none"><span data-i="tVar"></span><input type="number" id="tVar" min="0" max="15" step="1" style="width:90px"></div>
-      <div class="field"><span data-i="tLock"></span><input type="checkbox" id="tLock" style="transform:scale(1.3)"></div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn primary" id="tApply" data-i="tApply"></button>
-        <button class="btn" id="tLink" data-i="tLinkBtn"></button>
-        <button class="btn" id="tExit" data-i="tExit"></button>
-      </div>
-      <details style="margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:8px">
-        <summary data-i="pwChg" style="cursor:pointer;font-size:14px"></summary>
-        <div class="field"><span data-i="adEmail"></span><input type="email" id="adEmail" autocomplete="off" style="width:200px"></div>
-        <div class="field"><span data-i="adPw"></span><input type="password" id="adPw" autocomplete="off" style="width:200px"></div>
-        <div class="field"><span data-i="newPw"></span><input type="password" id="newPw" autocomplete="new-password" style="width:200px"></div>
-        <div class="field"><span data-i="newPw2"></span><input type="password" id="newPw2" autocomplete="new-password" style="width:200px"></div>
-        <div class="row" style="margin-top:8px"><button class="btn" id="pwChgBtn" data-i="pwChgBtn"></button></div>
-        <div class="msg" id="pwChgMsg"></div>
-      </details>
-      <textarea id="linkOut" rows="3" readonly style="display:none;background:#0b1220;color:var(--text);border:1px solid var(--line);border-radius:8px"></textarea>
-      <div class="msg" id="linkMsg"></div>
-    </div>
-    <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn" id="tClose" data-i="close"></button></div>
+<footer>
+  <div class="swbar three">
+    <button class="cmd" id="launchBtn" data-i="launch"></button>
+    <div class="sw sw3" id="sw0"><span class="swn" style="color:var(--green)">①</span><div class="swCol"><div class="swTime">00:00.00</div><div class="swHist" data-i="sl1"></div></div><button class="play">▶</button><button class="rst">↺</button></div>
+    <div class="sw sw3" id="sw1"><span class="swn" style="color:var(--green)">②</span><div class="swCol"><div class="swTime">00:00.00</div><div class="swHist" data-i="sl2"></div></div><button class="play">▶</button><button class="rst">↺</button></div>
+    <div class="sw sw3" id="sw2"><span class="swn" style="color:var(--amber)">③</span><div class="swCol"><div class="swTime">00:00.00</div><div class="swHist" data-i="sl3"></div></div><button class="play">▶</button><button class="rst">↺</button></div>
   </div>
-</div>
+  <div class="credit" id="credit"></div>
+</footer>
+
+<div class="modalBg" id="tModal"><div class="modal">
+  <h2 data-i="tTitle"></h2>
+  <div id="pwArea">
+    <div class="mrow"><input type="password" id="pwIn" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" style="flex:1"><button class="cmd" id="pwOk">OK</button></div>
+    <div class="msg" id="pwMsg"></div>
+  </div>
+  <div id="tArea" style="display:none">
+    <div id="ansBox" class="mono" style="color:var(--amber);font-size:14px;line-height:1.7;padding:8px 10px;border:1px solid var(--amber);border-radius:10px;margin-bottom:6px"></div>
+    <div class="field"><span>e (≠ 1)</span><input type="number" id="tE" min="0.05" max="0.95" step="0.05" style="width:100px"></div>
+    <div class="field"><span data-i="tVar"></span><input type="number" id="tVar" min="0" max="15" step="1" style="width:100px"></div>
+    <div class="field"><span data-i="tLock"></span><input type="checkbox" id="tLock" style="transform:scale(1.3)"></div>
+    <div class="mrow">
+      <button class="cmd" id="tApply" data-i="tApply"></button>
+      <button class="cmd" id="tLink" data-i="tLinkBtn"></button>
+      <button class="cmd" id="tExit" data-i="tExit"></button>
+    </div>
+    <textarea id="linkOut" rows="3" readonly style="display:none"></textarea>
+    <div class="msg" id="linkMsg"></div>
+    <details>
+      <summary data-i="pwChg"></summary>
+      <div class="field"><span data-i="adEmail"></span><input type="email" id="adEmail" autocomplete="off" style="width:210px"></div>
+      <div class="field"><span data-i="adPw"></span><input type="password" id="adPw" autocomplete="off" style="width:210px"></div>
+      <div class="field"><span data-i="newPw"></span><input type="password" id="newPw" autocomplete="new-password" style="width:210px"></div>
+      <div class="field"><span data-i="newPw2"></span><input type="password" id="newPw2" autocomplete="new-password" style="width:210px"></div>
+      <div class="mrow"><button class="cmd" id="pwChgBtn" data-i="pwChgBtn"></button></div>
+      <div class="msg" id="pwChgMsg"></div>
+    </details>
+  </div>
+  <div class="mrow" style="justify-content:flex-end"><button class="cmd" id="tClose" data-i="close"></button></div>
+</div></div>
 
 <script>
-/* ======================= TEXT (EN / TH) ======================= */
-const TXT = {
-en:{
- title:"1D Collision Lab II", subtitle:"Set u₁, then time both masses after collision",
- fullscreen:"⛶ Full screen", teacher:"🔒 Teacher", tabExp:"Experiment", tabData:"Data", tabGuide:"How to use",
- setup:"Setup", cond1:"Condition 1: Elastic (e = 1)", cond2:"Condition 2: e = ",
- u1in:"Launch velocity of m₁, u₁ =", launch:"▶ Launch", reset:"↺ Reset carts", strobe:"Strobe dots",
- dists:"Zone ① (left) and Zone ② (right) are each 50.0 cm. m₂ → Zone ②. m₁ → Zone ① if it bounces back, Zone ② if it moves forward.",
- stopwatches:"Stopwatches", sw1lbl:"Stopwatch ① — m₁ after collision", sw2lbl:"Stopwatch ② — m₂ after collision",
- startStop:"Tap: Start / Stop", swReset:"Reset stopwatches", save:"💾 Save trial",
- keys:"Keyboard: press 1 = stopwatch ①, 2 = stopwatch ②, L = launch",
- tbl1:"Condition 1 — Elastic (e = 1)", tbl2:"Condition 2 — Given e",
- csv:"⬇ Export CSV", clear:"🗑 Clear all data",
- dataNote:"Velocities to the right are positive, to the left negative. If m₁ stopped, leave stopwatch ① at 0 (v₁′ = 0). Type your own theoretical v₁′ and v₂′ into the yellow boxes; the app shows the % difference.",
- trial:"Trial", m1g:"m₁ (g)", m2g:"m₂ (g)", e:"e", u1:"u₁ (m/s)", t1:"t₁′ (s)", v1m:"v₁′ measured (m/s)", t2:"t₂′ (s)", v2m:"v₂′ measured (m/s)",
- v1t:"v₁′ theory — your calc", v2t:"v₂′ theory — your calc", diff1:"% diff v₁′", diff2:"% diff v₂′",
- avg:"Average", del:"✕",
- trueT1:"true t₁′", trueT2:"true t₂′", trueV1:"true v₁′", trueV2:"true v₂′",
- noData:"No data yet. Run the experiment and press “Save trial”.",
- stReady:"Ready — press Launch", stRun:"Running…", stDone:"Finished — save your times, then launch again",
- msgNeed:"Measure stopwatch ② (m₂) first. If m₁ stopped, leave stopwatch ① at 0.", msgSaved:"Saved trial #", msgNoRun:"Launch the carts first.",
- pwChg:"🔑 Change teacher password", adEmail:"Admin email", adPw:"Admin password", newPw:"New teacher password", newPw2:"Confirm new password", pwChgBtn:"Change password",
- pwChgOk:"Password changed (on this device/browser only).", pwChgBad:"Admin email or password is incorrect.", pwChgMismatch:"New passwords do not match or are empty.",
- tTitle:"Teacher settings", pwHint:"Enter teacher password.", pwWrong:"Wrong password",
- tM1:"Mass m₁ (g)", tM2:"Mass m₂ (g)", tE:"Coefficient e (Condition 2)", tVar:"",
- tLock:"Lock masses for students", tPw:"Teacher password", tApply:"Apply", tLinkBtn:"Create student link", tExit:"Leave teacher mode", close:"Close",
- linkCopied:"Link created and copied. Students who open it get these settings locked.",
- linkNull:"This file is opened directly (not from a website), so the link will not work. Upload to GitHub Pages first, then create the link there.",
- locked:"🔒 Masses are set by the teacher.",
- applied:"Settings applied.",
- truth:"Answer key (last run)",
- credit1:"Asst.Prof.Dr. Rossumont Jaryabhand<br>Rajamangala University of Technology Tawan-ok, Uthenthawai Campus<br>No Right Reserved"
-},
-th:{
- title:"การชนในหนึ่งมิติ II", subtitle:"กำหนด u₁ แล้วจับเวลามวลทั้งสองก้อนหลังชน",
- fullscreen:"⛶ เต็มจอ", teacher:"🔒 ผู้สอน", tabExp:"ทดลอง", tabData:"ข้อมูล", tabGuide:"วิธีใช้",
- setup:"ตั้งค่าการทดลอง", cond1:"เงื่อนไขที่ 1: ยืดหยุ่น (e = 1)", cond2:"เงื่อนไขที่ 2: e = ",
- u1in:"ความเร็วปล่อยของ m₁, u₁ =", launch:"▶ ปล่อยรถ", reset:"↺ ตั้งรถใหม่", strobe:"จุดสโตรบ",
- dists:"ช่วง ① (ซ้าย) และช่วง ② (ขวา) ยาวช่วงละ 50.0 cm  m₂ → ช่วง ②  m₁ → ช่วง ① ถ้ากระดอนกลับ หรือช่วง ② ถ้าวิ่งไปข้างหน้า",
- stopwatches:"นาฬิกาจับเวลา", sw1lbl:"นาฬิกา ① — m₁ หลังชน", sw2lbl:"นาฬิกา ② — m₂ หลังชน",
- startStop:"แตะ: เริ่ม / หยุด", swReset:"รีเซ็ตนาฬิกา", save:"💾 บันทึกครั้งนี้",
- keys:"คีย์บอร์ด: กด 1 = นาฬิกา ①, 2 = นาฬิกา ②, L = ปล่อยรถ",
- tbl1:"เงื่อนไขที่ 1 — ชนแบบยืดหยุ่น (e = 1)", tbl2:"เงื่อนไขที่ 2 — กำหนดค่า e",
- csv:"⬇ ส่งออก CSV", clear:"🗑 ล้างข้อมูลทั้งหมด",
- dataNote:"ความเร็วไปทางขวาเป็นบวก ไปทางซ้ายเป็นลบ ถ้า m₁ หยุดนิ่ง ให้ปล่อยนาฬิกา ① เป็น 0 (v₁′ = 0) ให้นักศึกษาคำนวณ v₁′ และ v₂′ ตามทฤษฎีเองแล้วพิมพ์ลงช่องสีเหลือง แอปจะแสดง % ความต่างให้",
- trial:"ครั้งที่", m1g:"m₁ (g)", m2g:"m₂ (g)", e:"e", u1:"u₁ (m/s)", t1:"t₁′ (s)", v1m:"v₁′ วัดได้ (m/s)", t2:"t₂′ (s)", v2m:"v₂′ วัดได้ (m/s)",
- v1t:"v₁′ ทฤษฎี — คำนวณเอง", v2t:"v₂′ ทฤษฎี — คำนวณเอง", diff1:"% ต่าง v₁′", diff2:"% ต่าง v₂′",
- avg:"ค่าเฉลี่ย", del:"✕",
- trueT1:"t₁′ จริง", trueT2:"t₂′ จริง", trueV1:"v₁′ จริง", trueV2:"v₂′ จริง",
- noData:"ยังไม่มีข้อมูล ทำการทดลองแล้วกด “บันทึกครั้งนี้”",
- stReady:"พร้อม — กดปล่อยรถ", stRun:"กำลังเคลื่อนที่…", stDone:"จบแล้ว — บันทึกเวลา แล้วปล่อยรถใหม่ได้",
- msgNeed:"ต้องจับเวลานาฬิกา ② (m₂) ก่อน ถ้า m₁ หยุดนิ่งให้ปล่อยนาฬิกา ① เป็น 0", msgSaved:"บันทึกครั้งที่ ", msgNoRun:"กรุณาปล่อยรถก่อน",
- pwChg:"🔑 เปลี่ยนรหัสผู้สอน", adEmail:"อีเมลผู้ดูแล", adPw:"รหัสผ่านผู้ดูแล", newPw:"รหัสผู้สอนใหม่", newPw2:"ยืนยันรหัสใหม่", pwChgBtn:"เปลี่ยนรหัส",
- pwChgOk:"เปลี่ยนรหัสแล้ว (มีผลเฉพาะเครื่อง/เบราว์เซอร์นี้)", pwChgBad:"อีเมลหรือรหัสผ่านผู้ดูแลไม่ถูกต้อง", pwChgMismatch:"รหัสใหม่ไม่ตรงกัน หรือยังไม่ได้กรอก",
- tTitle:"ตั้งค่าสำหรับผู้สอน", pwHint:"ใส่รหัสผู้สอน", pwWrong:"รหัสไม่ถูกต้อง",
- tM1:"มวล m₁ (g)", tM2:"มวล m₂ (g)", tE:"ค่า e (เงื่อนไขที่ 2)", tVar:"",
- tLock:"ล็อกมวลไม่ให้นักศึกษาเปลี่ยน", tPw:"รหัสผู้สอน", tApply:"ใช้ค่านี้", tLinkBtn:"สร้างลิงก์ให้นักศึกษา", tExit:"ออกจากโหมดผู้สอน", close:"ปิด",
- linkCopied:"สร้างลิงก์และคัดลอกแล้ว นักศึกษาที่เปิดลิงก์นี้จะได้ค่าที่ล็อกไว้",
- linkNull:"ไฟล์นี้เปิดจากเครื่องโดยตรง (ไม่ได้เปิดจากเว็บไซต์) ลิงก์จะใช้ไม่ได้ ให้อัปโหลดขึ้น GitHub Pages ก่อน แล้วค่อยสร้างลิงก์จากหน้าเว็บนั้น",
- locked:"🔒 ผู้สอนกำหนดมวลไว้แล้ว",
- applied:"ใช้ค่าเรียบร้อย",
- truth:"เฉลย (การปล่อยครั้งล่าสุด)",
- credit1:"ผศ.ดร.รสสุมนต์ จารยะพันธุ์<br>มหาวิทยาลัยเทคโนโลยีราชมงคลตะวันออก อุเทนถวาย<br>ไม่สงวนลิขสิทธิ์"
-}};
+const LAB=1;            // 1 = time m1 before + m2 after;  2 = set u1, time both after
+const PRE='col'+LAB+'_';       // storage prefix (keeps Lab I and Lab II data separate)
 
-const GUIDE = {
-en:`<h2>📘 How to use</h2>
-<ol>
-<li>Choose the masses, u₁ and the condition, then press <b>Launch</b>.</li>
-<li>Work in pairs: stopwatch ① for the blue cart (m₁), stopwatch ② for the orange cart (m₂), both <b>after</b> collision. Time the <b>flag</b>.</li>
-<li>m₂ → Zone ②. m₁ → Zone ① if it bounces back, Zone ② if it moves forward. If m₁ stops, leave stopwatch ① at 0.</li>
-<li>Press <b>Save trial</b>. Results are in the <b>Data</b> tab.</li>
-</ol>
-<ul>
-<li>Each zone is 0.500 m. Right = positive, left = negative.</li>
-<li>You may use your own stopwatch instead — record the times on your worksheet.</li>
-</ul>`,
-th:`<h2>📘 วิธีใช้</h2>
-<ol>
-<li>เลือกมวล u₁ และเงื่อนไข แล้วกด <b>ปล่อยรถ</b></li>
-<li>ทำเป็นคู่: นาฬิกา ① จับรถสีฟ้า (m₁) นาฬิกา ② จับรถสีส้ม (m₂) ทั้งคู่จับ<b>หลังชน</b> โดยดูที่<b>ธง</b></li>
-<li>m₂ → ช่วง ②  m₁ → ช่วง ① ถ้ากระดอนกลับ หรือช่วง ② ถ้าวิ่งไปข้างหน้า ถ้า m₁ หยุดนิ่งให้ปล่อยนาฬิกา ① เป็น 0</li>
-<li>กด <b>บันทึกครั้งนี้</b> ดูผลได้ที่แท็บ <b>ข้อมูล</b></li>
-</ol>
-<ul>
-<li>แต่ละช่วงยาว 0.500 m ไปทางขวาเป็นบวก ไปทางซ้ายเป็นลบ</li>
-<li>ใช้นาฬิกาจับเวลาส่วนตัวแทนได้ ให้จดเวลาลงใบงาน</li>
-</ul>`
+/* ---------- TEXT ---------- */
+const TXT={
+en:{ title:"1D Collision Lab", sub:"Time to find u₁, v₁′ and v₂′", teacher:"Teacher", launch:"Launch", clear:"clear all",
+  power:"P", t1:"t₁ (s) ①", t2:"t₂ (s) ②",
+  sl1:"m₁ before", sl2:"m₁ after", sl3:"m₂ after", tTitle:"Teacher", ans:"Answer (last launch)", noRun:"Launch once to see the answer.", stops:"stops", tLock:"Lock masses", tVar:"Launch variation ±%", tApply:"Apply", tLinkBtn:"Student link", tExit:"Exit teacher", close:"Close",
+  pwWrong:"Wrong password", applied:"Applied",
+  linkCopied:"Link copied — settings are locked for students.",
+  linkNull:"Open this app from the website (GitHub Pages) to create a working link.",
+  pwChg:"🔑 Change password", adEmail:"Admin email", adPw:"Admin password", newPw:"New password", newPw2:"Confirm", pwChgBtn:"Change",
+  pwChgOk:"Changed (this device only).", pwChgBad:"Admin email or password incorrect.", pwChgMismatch:"New passwords do not match.",
+  confirmClear:"Delete all rows?",
+  credit:"Asst.Prof.Dr. Rossumont Jaryabhand · Rajamangala University of Technology Tawan-ok, Uthenthawai Campus · No Right Reserved" },
+th:{ title:"การชนในหนึ่งมิติ", sub:"จับเวลาหา u₁, v₁′ และ v₂′", teacher:"ครู", launch:"ปล่อย", clear:"ล้างทั้งหมด",
+  power:"P", t1:"t₁ (s) ①", t2:"t₂ (s) ②",
+  sl1:"m₁ ก่อนชน", sl2:"m₁ หลังชน", sl3:"m₂ หลังชน", tTitle:"ครู", ans:"เฉลย (การปล่อยครั้งล่าสุด)", noRun:"กดปล่อยก่อน จึงจะเห็นเฉลย", stops:"หยุดนิ่ง", tLock:"ล็อกมวล", tVar:"ความแปรปรวนแรงยิง ±%", tApply:"ใช้ค่านี้", tLinkBtn:"ลิงก์นักศึกษา", tExit:"ออกโหมดครู", close:"ปิด",
+  pwWrong:"รหัสไม่ถูกต้อง", applied:"ใช้ค่าแล้ว",
+  linkCopied:"คัดลอกลิงก์แล้ว — ค่าถูกล็อกสำหรับนักศึกษา",
+  linkNull:"ต้องเปิดแอปจากหน้าเว็บ (GitHub Pages) จึงจะสร้างลิงก์ที่ใช้ได้",
+  pwChg:"🔑 เปลี่ยนรหัส", adEmail:"อีเมลผู้ดูแล", adPw:"รหัสผู้ดูแล", newPw:"รหัสใหม่", newPw2:"ยืนยัน", pwChgBtn:"เปลี่ยน",
+  pwChgOk:"เปลี่ยนแล้ว (เฉพาะเครื่องนี้)", pwChgBad:"อีเมลหรือรหัสผู้ดูแลไม่ถูกต้อง", pwChgMismatch:"รหัสใหม่ไม่ตรงกัน",
+  confirmClear:"ลบข้อมูลทั้งหมด?",
+  credit:"ผศ.ดร.รสสุมนต์ จารยะพันธุ์ · มหาวิทยาลัยเทคโนโลยีราชมงคลตะวันออก อุเทนถวาย · ไม่สงวนลิขสิทธิ์" }
 };
 
-const CREDIT=`ผศ.ดร.รสสุมนต์ จารยะพันธุ์  มหาวิทยาลัยเทคโนโลยีราชมงคลตะวันออก อุเทนถวาย<br>ไม่สงวนลิขสิทธิ์<br><br>Asst.Prof.Dr. Rossumont Jaryabhand<br>Rajamangala University of Technology Tawan-ok, Uthenthawai Campus<br>No Right Reserved`;
-/* ======================= PASSWORD (stored as SHA-256 fingerprints, never plain text) ======================= */
+/* ---------- PASSWORD (stored as fingerprints only) ---------- */
 function sha256(str){
   const bytes=Array.from(new TextEncoder().encode(str));
   const rr=(v,n)=>(v>>>n)|(v<<(32-n)), H=[], K=[];
@@ -309,320 +192,196 @@ const DEFAULT_PW_HASH='8db889767c2c37605279743265bbe7e417a602cf63627e30551165e1f
 const ADMIN_EMAIL_HASH='ba9141f018cca7df16a1eea2690318299afde0145a9cf3c21f4779f54d48b307';
 const ADMIN_PW_HASH='4ad33163e0911114959530cf0d6f3bab6bcf572c5ae3c768d94c1510d8370dfd';
 
-/* ======================= SAFE STORAGE ======================= */
-const store = {
-  get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v);}catch(e){return d;}},
-  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
-};
 
-/* ======================= STATE ======================= */
-const MASSES=[100,150,200,250,300,400,500];
-const POWER_SPEED=[0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50,0.55]; // m/s nominal, level 1–10
-const W=0.14, X1_0=0.10, X2_0=1.05, END=2.0, SPRING=0.09; // SPRING = free length of launcher spring (m)
-const LINES={s1:0.30,e1:0.80,s2:1.25,e2:1.75};
-const D1=LINES.e1-LINES.s1, D2=LINES.e2-LINES.s2;
+/* ---------- STORAGE ---------- */
+const store={get(k,d){try{const v=localStorage.getItem(PRE+k);return v===null?d:JSON.parse(v);}catch(e){return d;}},
+             set(k,v){try{localStorage.setItem(PRE+k,JSON.stringify(v));}catch(e){}}};
 
-let lang = store.get('col2_lang','en');
-let settings = Object.assign({m1:200,m2:200,e:0.60,vari:3,lock:false}, store.get('col2_settings',{}));
-let teacherPwHash = store.get('col2_pwh',DEFAULT_PW_HASH);
-let urlLocked=false;
-let teacher=false;
-let cond=1;
-let data = store.get('col2_data',{1:[],2:[]});
+/* ---------- STATE ---------- */
+const MASSES=[100,200,300,400,500];
+const POWER=[0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50,0.55];   // Lab I, m/s
+const U1S=[0.10,0.15,0.20,0.25,0.30,0.40,0.50];                    // Lab II, m/s
+const W=0.14, X1_0=0.10, X2_0=1.05, END=2.0, SPRING=0.09;
+const LINES={s1:0.30,e1:0.80,s2:1.25,e2:1.75}, D=0.50;
 
-// student link
-(function readLink(){
-  try{
-    const k=new URLSearchParams(location.search).get('k');
-    if(!k) return;
-    const s=JSON.parse(decodeURIComponent(atob(k.slice(16).split('').reverse().join(''))));
-    settings=Object.assign(settings,s); urlLocked=true;
-  }catch(e){}
-})();
-function isLocked(){return (urlLocked && settings.lock) && !teacher;}
-
-const t=k=>(TXT[lang][k]??k);
-
-/* ======================= I18N ======================= */
-function applyLang(){
-  document.documentElement.lang=lang;
-  document.querySelectorAll('[data-i]').forEach(el=>{el.innerHTML=t(el.dataset.i);});
-  document.getElementById('langBtn').textContent= lang==='en'?'ไทย':'English';
-  document.getElementById('guideBox').innerHTML=GUIDE[lang]+`<div class="credit">${CREDIT}</div>`;
-  document.getElementById('creditExp').innerHTML=CREDIT;
-  refreshUI(); renderTables(); setStatus();
-}
-
-/* ======================= UI SETUP ======================= */
+let lang=store.get('lang','en');
+let S=Object.assign({m1:200,m2:200,e:0.60,vari:0,lock:false,ec:1,p:4,u:0.25},store.get('set',{}));
+let pwHash=store.get('pwh',DEFAULT_PW_HASH);
+let urlLocked=false, teacher=false;
+(function(){try{const k=new URLSearchParams(location.search).get('k'); if(!k) return;
+  const s=JSON.parse(decodeURIComponent(atob(k.slice(16).split('').reverse().join(''))));
+  S=Object.assign(S,s); urlLocked=true;}catch(e){}})();
+const saveS=()=>{ if(!urlLocked) store.set('set',S); };
+const t=k=>TXT[lang][k]??k;
 const $=id=>document.getElementById(id);
-function fillMass(sel){sel.innerHTML=MASSES.map(m=>`<option value="${m}">${m} g</option>`).join('');}
-[$('m1Sel'),$('m2Sel'),$('tM1'),$('tM2')].forEach(fillMass);
+const locked=()=>urlLocked&&S.lock&&!teacher;
+const eNow=()=>S.ec===1?1:+S.e;
+const fmt=(v,d=3)=>isFinite(v)?v.toFixed(d):'–';
 
-function refreshUI(){
-  $('m1Sel').value=settings.m1; $('m2Sel').value=settings.m2;
-  $('eShow').textContent=Number(settings.e).toFixed(2);
-  const lk=isLocked();
-  $('m1Sel').disabled=lk; $('m2Sel').disabled=lk;
-  $('lockNote').textContent= lk? t('locked'):'';
-  document.body.classList.toggle('teacher',teacher);
-  $('teacherBtn').textContent = teacher ? '🔓 '+(lang==='en'?'Teacher ON':'โหมดผู้สอน') : t('teacher');
-  renderTruth();
+/* ---------- CHIPS ---------- */
+function chipGroup(label,vals,cur,show,onPick,dis){
+  const g=document.createElement('div'); g.className='grp';
+  g.innerHTML=`<span class="gl">${label}</span>`;
+  vals.forEach(v=>{const b=document.createElement('button'); b.className='chip'+(v===cur?' sel':''); b.textContent=show(v);
+    b.disabled=!!dis; b.onclick=()=>{onPick(v); renderChips(); resetCarts();}; g.appendChild(b);});
+  return g;
 }
-$('m1Sel').onchange=e=>{settings.m1=+e.target.value; if(!urlLocked)store.set('col2_settings',settings); resetCarts();};
-$('m2Sel').onchange=e=>{settings.m2=+e.target.value; if(!urlLocked)store.set('col2_settings',settings); resetCarts();};
-document.querySelectorAll('input[name=cond]').forEach(r=>r.onchange=()=>{cond=+r.value; resetCarts();});
-
-document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.toggle('on',x===b));
-  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.id==='tab-'+b.dataset.tab));
-  if(b.dataset.tab==='exp') resize();
-  if(b.dataset.tab==='data') renderTables();
-});
-$('langBtn').onclick=()=>{lang= lang==='en'?'th':'en'; store.set('col2_lang',lang); applyLang();};
-$('fsBtn').onclick=()=>{
-  const d=document, el=d.documentElement;
-  if(d.fullscreenElement||d.webkitFullscreenElement){(d.exitFullscreen||d.webkitExitFullscreen).call(d);}
-  else{const f=el.requestFullscreen||el.webkitRequestFullscreen; if(f) f.call(el);}
-};
-
-/* ======================= SIMULATION ======================= */
-let sim;
-function resetCarts(){
-  sim={state:'ready',x1:X1_0,x2:X2_0,v1:0,v2:0,t:0,collided:false,strobe:[],nextStrobe:0,glow:{},truth:sim?sim.truth:null};
-  setStatus(); draw();
+function renderChips(){
+  const c=$('chips'); c.innerHTML='';
+  c.appendChild(chipGroup('e',[1,2],S.ec,v=>v===1?'1':'≠ 1',v=>S.ec=v));
+  c.appendChild(chipGroup('m₁ g',MASSES,S.m1,v=>v,v=>{S.m1=v;saveS();},locked()));
+  c.appendChild(chipGroup('m₂ g',MASSES,S.m2,v=>v,v=>{S.m2=v;saveS();},locked()));
+  if(LAB===1) c.appendChild(chipGroup('P',POWER.map((_,i)=>i+1),S.p,v=>v,v=>{S.p=v;saveS();}));
+  else c.appendChild(chipGroup('u₁ m/s',U1S,S.u,v=>v.toFixed(2),v=>{S.u=v;saveS();}));
 }
+
+/* ---------- SIMULATION ---------- */
+let sim, lastRun=null;
+function resetCarts(){ sim={state:'ready',x1:X1_0,x2:X2_0,v1:0,v2:0,collided:false,glow:{},t:0}; }
+function theory(m1,m2,e,u1){ return {v1:(m1-e*m2)*u1/(m1+m2), v2:(1+e)*m1*u1/(m1+m2)}; }
 function launch(){
-  let u1=parseFloat($('u1In').value); if(!isFinite(u1)) u1=0.25;
-  u1=Math.min(0.60,Math.max(0.05,u1)); $('u1In').value=u1;
-  const e= cond===1?1:+settings.e, m1=+settings.m1, m2=+settings.m2;
-  const v1p=(m1-e*m2)*u1/(m1+m2), v2p=(1+e)*m1*u1/(m1+m2);
-  resetCarts();
-  sim.state='run'; sim.v1=u1; sim.v1p=v1p; sim.v2p=v2p;
-  sim.truth={u1,v2p,v1p,t1:D1/u1,t2:D2/v2p,cond,m1,m2,e};
-  swResetAll(); setStatus(); renderTruth();
+  const e=eNow(), m1=S.m1, m2=S.m2;
+  let u1= LAB===1 ? POWER[S.p-1]*(1+(Math.random()*2-1)*S.vari/100) : S.u;
+  const th=theory(m1,m2,e,u1);
+  resetCarts(); sim.state='run'; sim.v1=u1; sim.v1p=th.v1; sim.v2p=th.v2; lastRun={u1,v1:th.v1,v2:th.v2,m1,m2,e};
 }
-function crossed(a,b,line){return (a<line&&b>=line)||(a>line&&b<=line);}
+function crossed(a,b,l){return (a<l&&b>=l)||(a>l&&b<=l);}
 function step(dt){
   if(sim.state!=='run') return;
-  sim.t+=dt;
-  const p1=sim.x1,p2=sim.x2;
+  sim.t+=dt; const p1=sim.x1,p2=sim.x2;
   sim.x1+=sim.v1*dt; sim.x2+=sim.v2*dt;
-  if(!sim.collided && sim.x2-sim.x1<=W){
-    sim.collided=true; sim.x1=sim.x2-W; sim.v1=sim.v1p; sim.v2=sim.v2p;
-  }
+  if(!sim.collided && sim.x2-sim.x1<=W){ sim.collided=true; sim.x1=sim.x2-W; sim.v1=sim.v1p; sim.v2=sim.v2p; }
   if(sim.collided){
     if(sim.x2>=END-W/2){sim.x2=END-W/2; sim.v2=0;}
     if(sim.x1>sim.x2-W){sim.x1=sim.x2-W; sim.v1=0;}
+    if(sim.x1<SPRING+W/2 && sim.v1<0){sim.x1=SPRING+W/2; sim.v1=0;}
   }
-  if(sim.collided && sim.x1<SPRING+W/2 && sim.v1<0){sim.x1=SPRING+W/2; sim.v1=0;}
   const now=performance.now();
-  if(sim.collided){ // after collision only: both carts can trigger the line glow
-    [[p1,sim.x1,'a'],[p2,sim.x2,'b']].forEach(([pa,xa,id])=>['s1','e1','s2','e2'].forEach(k=>{
-      if(crossed(pa,xa,LINES[k])&&!sim.glow[k+id]){sim.glow[k]=now;sim.glow[k+id]=1;}}));
-  }
-  if(sim.t>=sim.nextStrobe){sim.strobe.push([sim.x1,sim.x2]); sim.nextStrobe+=0.1;}
-  if(sim.collided && sim.v1===0 && sim.v2===0){sim.state='done'; setStatus();}
-  if(sim.t>300){sim.state='done'; setStatus();}
+  [[p1,sim.x1,'a'],[p2,sim.x2,'b']].forEach(([pa,xa,id])=>Object.keys(LINES).forEach(k=>{
+    if(crossed(pa,xa,LINES[k])&&!sim.glow[k+id]){sim.glow[k]=now;sim.glow[k+id]=1;}}));
+  if((sim.collided&&sim.v1===0&&sim.v2===0)||sim.t>300) sim.state='done';
 }
-function setStatus(){
-  if(!sim) return;
-  $('statusBadge').textContent= sim.state==='ready'?t('stReady'): sim.state==='run'?t('stRun'):t('stDone');
-}
-$('launchBtn').onclick=launch;
-$('resetBtn').onclick=()=>{resetCarts(); swResetAll();};
 
-/* ======================= DRAWING ======================= */
-const cv=$('cv'), ctx=cv.getContext('2d');
-let CW=0,CH=0;
-function resize(){
-  const r=cv.getBoundingClientRect(); if(!r.width) return;
-  const dpr=window.devicePixelRatio||1;
-  CW=r.width; CH=r.height; cv.width=CW*dpr; cv.height=CH*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); draw();
-}
-new ResizeObserver(resize).observe($('canvasWrap'));
-function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+/* ---------- DRAW ---------- */
+const cv=$('cv'), ctx=cv.getContext('2d'); let CW=0,CH=0;
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+let C={};
+function resize(){ const r=cv.getBoundingClientRect(); if(!r.width) return; const d=devicePixelRatio||1;
+  CW=r.width; CH=r.height; cv.width=CW*d; cv.height=CH*d; ctx.setTransform(d,0,0,d,0,0);
+  C={g:css('--green'),a:css('--amber'),t:css('--text'),m:css('--muted'),l:css('--line'),mono:css('--mono')}; }
+new ResizeObserver(resize).observe($('stage'));
 function draw(){
-  if(!CW||!sim) return;
-  ctx.clearRect(0,0,CW,CH);
-  const mx=22, sx=(CW-2*mx)/END, X=x=>mx+x*sx;
-  const trackY=Math.min(CH*0.60, CH-70), cartH=Math.max(26,Math.min(40,CH*0.13)), now=performance.now();
-  // zone lines
-  const lineDef=[['s1','①',css('--z1')],['e1','①',css('--z1')],['s2','②',css('--z2')],['e2','②',css('--z2')]];
-  const topY=34;
-  lineDef.forEach(([k,lab,col])=>{
-    const x=X(LINES[k]); const g=sim.glow[k]&&now-sim.glow[k]<350;
-    ctx.strokeStyle=col; ctx.lineWidth=g?5:2; ctx.setLineDash(g?[]:[6,5]);
-    if(g){ctx.shadowColor=col;ctx.shadowBlur=18;}
-    ctx.beginPath(); ctx.moveTo(x,topY); ctx.lineTo(x,trackY+6); ctx.stroke();
-    ctx.shadowBlur=0; ctx.setLineDash([]);
-    ctx.fillStyle=col; ctx.font='bold 12px sans-serif'; ctx.textAlign='center'; ctx.fillText(lab,x,topY-6);
+  if(!CW||!sim) return; ctx.clearRect(0,0,CW,CH);
+  const mx=26, sx=(CW-2*mx)/END, X=x=>mx+x*sx;
+  const trackY=Math.max(120,Math.min(CH-56,CH*0.74)), cartH=Math.max(30,Math.min(64,CH*0.16)), now=performance.now();
+  const mono=s=>`${s}px ${C.mono}`;
+  // zones
+  [['s1','e1','①',C.g],['s2','e2','②',C.a]].forEach(([a,b,lab,col])=>{
+    [a,b].forEach(k=>{const x=X(LINES[k]), gl=sim.glow[k]&&now-sim.glow[k]<350;
+      ctx.strokeStyle=col; ctx.lineWidth=gl?5:1.6; ctx.setLineDash(gl?[]:[6,6]); if(gl){ctx.shadowColor=col;ctx.shadowBlur=18;}
+      ctx.beginPath(); ctx.moveTo(x,30); ctx.lineTo(x,trackY); ctx.stroke(); ctx.shadowBlur=0; ctx.setLineDash([]);});
+    const y=44, xa=X(LINES[a]), xb=X(LINES[b]);
+    ctx.strokeStyle=col; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(xa,y); ctx.lineTo(xb,y); ctx.stroke();
+    ctx.fillStyle=col; ctx.font=mono(13); ctx.textAlign='center'; ctx.fillText(lab+'  0.50 m',(xa+xb)/2,y-7);
   });
-  // distance brackets
-  [['s1','e1','Zone ①  50.0 cm',css('--z1')],['s2','e2','Zone ②  50.0 cm',css('--z2')]].forEach(([a,b,lab,col])=>{
-    const y=topY+14; ctx.strokeStyle=col; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(X(LINES[a]),y); ctx.lineTo(X(LINES[b]),y); ctx.stroke();
-    ctx.fillStyle=col; ctx.font='12px sans-serif'; ctx.fillText(lab,(X(LINES[a])+X(LINES[b]))/2,y-4);
-  });
-  // track
-  ctx.fillStyle='#334155'; ctx.fillRect(X(0),trackY,X(END)-X(0),8);
-  ctx.fillStyle='#64748b'; ctx.fillRect(X(END)-4,trackY-cartH-6,8,cartH+14); // end bumper
-  // ruler
-  ctx.strokeStyle='#64748b'; ctx.fillStyle=css('--muted'); ctx.font='10px sans-serif'; ctx.lineWidth=1;
-  for(let i=0;i<=40;i++){const x=X(i*0.05); const big=i%2===0; ctx.beginPath(); ctx.moveTo(x,trackY+10); ctx.lineTo(x,trackY+(big?20:15)); ctx.stroke();
-    if(i%4===0&&CW>420||i%8===0) ctx.fillText((i*5)+'',x,trackY+31);}
-  ctx.textAlign='right'; ctx.fillText('cm',X(END),trackY+44); ctx.textAlign='center';
-  // launcher spring
-  ctx.strokeStyle='#a3a3a3'; ctx.lineWidth=2; ctx.beginPath();
-  const lx0=X(0), lx1=X(Math.min(sim.x1-W/2,SPRING)); const coils=6, ly=trackY-cartH/2;
-  ctx.moveTo(lx0,ly);
-  if(lx1-lx0>4){for(let i=1;i<=coils;i++){ctx.lineTo(lx0+(lx1-lx0)*(i-0.5)/coils, ly+(i%2?-6:6));} ctx.lineTo(lx1,ly);} ctx.stroke();
-  ctx.fillStyle='#a3a3a3'; ctx.fillRect(lx1-2,ly-9,4,18);
-  ctx.fillStyle='#64748b'; ctx.fillRect(lx0-4,trackY-cartH-4,6,cartH+12);
-  // strobe
-  if($('strobe').checked){
-    sim.strobe.forEach(([a,b])=>{ctx.fillStyle=css('--m1');ctx.beginPath();ctx.arc(X(a),trackY+52,2.5,0,7);ctx.fill();
-      ctx.fillStyle=css('--m2');ctx.beginPath();ctx.arc(X(b),trackY+60,2.5,0,7);ctx.fill();});
-  }
+  // track + ruler
+  ctx.fillStyle='#2E4462'; ctx.fillRect(X(0),trackY,X(END)-X(0),6);
+  ctx.fillStyle='#5A6F8C'; ctx.fillRect(X(END)-3,trackY-cartH-8,6,cartH+14); ctx.fillRect(X(0)-5,trackY-cartH-6,6,cartH+12);
+  ctx.strokeStyle=C.m; ctx.fillStyle=C.m; ctx.lineWidth=1; ctx.font=mono(11);
+  for(let i=0;i<=40;i++){const x=X(i*0.05); const big=i%4===0; ctx.beginPath(); ctx.moveTo(x,trackY+9); ctx.lineTo(x,trackY+(big?19:14)); ctx.stroke();
+    if(big&&(CW>480||i%8===0)) ctx.fillText((i*0.05).toFixed(1),x,trackY+32);}
+  ctx.textAlign='right'; ctx.fillText('m',X(END),trackY+46); ctx.textAlign='center';
+  // spring
+  const lx0=X(0), lx1=X(Math.min(sim.x1-W/2,SPRING)), ly=trackY-cartH/2;
+  ctx.strokeStyle='#B9C3D1'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(lx0,ly);
+  if(lx1-lx0>4){for(let i=1;i<=6;i++) ctx.lineTo(lx0+(lx1-lx0)*(i-0.5)/6, ly+(i%2?-6:6)); ctx.lineTo(lx1,ly);} ctx.stroke();
   // carts
-  [[sim.x1,settings.m1,css('--m1'),'m₁'],[sim.x2,settings.m2,css('--m2'),'m₂']].forEach(([x,m,col,n])=>{
+  [[sim.x1,S.m1,C.g],[sim.x2,S.m2,C.a]].forEach(([x,m,col])=>{
     const l=X(x-W/2), w=W*sx, top=trackY-cartH;
-    ctx.fillStyle=col; ctx.beginPath(); ctx.roundRect?ctx.roundRect(l,top,w,cartH,5):ctx.rect(l,top,w,cartH); ctx.fill();
-    // shrink text so it always fits inside the cart
-    const fit=(txt,max,bold)=>{let fs=max; do{ctx.font=(bold?'bold ':'')+fs+'px sans-serif'; if(ctx.measureText(txt).width<=w-6) break; fs--;}while(fs>7); return fs;};
-    ctx.fillStyle='#0b1220'; ctx.textBaseline='middle';
-    fit(m+' g',15,true); ctx.fillText(m+' g',X(x),top+cartH/2+1);
-    ctx.textBaseline='alphabetic';
-    // flag
-    ctx.strokeStyle='#f8fafc'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(X(x),top); ctx.lineTo(X(x),top-22); ctx.stroke();
-    ctx.fillStyle='#f8fafc'; ctx.beginPath(); ctx.moveTo(X(x),top-22); ctx.lineTo(X(x)+9,top-18); ctx.lineTo(X(x),top-14); ctx.fill();
+    ctx.fillStyle=col; ctx.beginPath(); ctx.roundRect?ctx.roundRect(l,top,w,cartH,6):ctx.rect(l,top,w,cartH); ctx.fill();
+    const txt=m+' g'; let fs=16; do{ctx.font='bold '+mono(fs); if(ctx.measureText(txt).width<=w-6) break; fs--;}while(fs>7);
+    ctx.fillStyle='#0B1A2B'; ctx.textBaseline='middle'; ctx.fillText(txt,X(x),top+cartH/2+1); ctx.textBaseline='alphabetic';
+    ctx.strokeStyle=C.t; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(X(x),top); ctx.lineTo(X(x),top-24); ctx.stroke();
+    ctx.fillStyle=C.t; ctx.beginPath(); ctx.moveTo(X(x),top-24); ctx.lineTo(X(x)+10,top-19); ctx.lineTo(X(x),top-14); ctx.fill();
   });
-}
-let last=performance.now();
-function loop(now){
-  let dt=Math.min(0.05,(now-last)/1000); last=now;
-  // sub-steps for accuracy
-  const n=4; for(let i=0;i<n;i++) step(dt/n);
-  draw(); swTick();
-  requestAnimationFrame(loop);
 }
 
-/* ======================= STOPWATCHES ======================= */
-const sws=[{el:$('sw1'),run:false,t0:0,val:0},{el:$('sw2'),run:false,t0:0,val:0}];
-function swToggle(i){
-  const s=sws[i];
-  if(!s.run){s.run=true; s.t0=performance.now(); s.val=0;}
-  else{s.run=false; s.val=(performance.now()-s.t0)/1000;}
-  s.el.classList.toggle('run',s.run); swTick();
-}
-function swTick(){sws.forEach(s=>{const v=s.run?(performance.now()-s.t0)/1000:s.val; s.el.querySelector('.time').textContent=v.toFixed(2)+' s';});}
-function swResetAll(){sws.forEach(s=>{s.run=false;s.val=0;s.el.classList.remove('run');}); swTick();}
-sws.forEach((s,i)=>{const b=s.el.querySelector('.swBtn'); b.addEventListener('pointerdown',e=>{e.preventDefault();swToggle(i);});});
-$('swReset').onclick=swResetAll;
+/* ---------- STOPWATCHES (real time, 1:1) ---------- */
+// each ▶ after a stop starts a NEW timing from zero; earlier results stay listed under the clock (newest first)
+const sws=[...document.querySelectorAll('.sw')].map(el=>({el,run:false,t0:0,acc:0,hist:[]}));
+const SHOW_HIST=sws.length===2;  // 2 clocks: keep earlier results; 3 clocks: one value per clock
+const swNow=w=>w.acc+(w.run?(performance.now()-w.t0)/1000:0);
+function swShow(w){ const v=swNow(w), m=Math.floor(v/60), s=v-m*60;
+  w.el.querySelector('.swTime').textContent=String(m).padStart(2,'0')+':'+s.toFixed(2).padStart(5,'0');
+  if(SHOW_HIST) w.el.querySelector('.swHist').textContent=w.hist.slice(w.run?0:1,4).map(x=>x.toFixed(2)).join(' · '); }
+function swPaint(w){ const p=w.el.querySelector('.play'); p.textContent=w.run?'■':'▶'; p.classList.toggle('run',w.run); w.el.querySelector('.swTime').classList.toggle('run',w.run); swShow(w); }
+function swToggle(i){ const w=sws[i];
+  if(w.run){ w.acc=swNow(w); w.run=false; w.hist.unshift(w.acc); w.hist=w.hist.slice(0,4); }
+  else { w.acc=0; w.t0=performance.now(); w.run=true; }
+  swPaint(w); }
+function swReset(i){ const w=sws[i]; w.run=false; w.acc=0; w.hist=[]; swPaint(w); }
+sws.forEach((w,i)=>{ w.el.querySelector('.play').addEventListener('pointerdown',e=>{e.preventDefault(); swToggle(i);});
+  w.el.querySelector('.rst').onclick=()=>swReset(i); });
+$('launchBtn').onclick=launch;
 document.addEventListener('keydown',e=>{
-  if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)) return;
-  if(e.key==='1') swToggle(0); else if(e.key==='2') swToggle(1); else if(e.key==='l'||e.key==='L') launch();
+  if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
+  if(['1','2','3'].includes(e.key) && sws[+e.key-1]) swToggle(+e.key-1); else if(e.key==='l'||e.key==='L') launch();
 });
 
-/* ======================= SAVE / DATA ======================= */
-function showMsg(m){$('msg').textContent=m; clearTimeout(showMsg.h); showMsg.h=setTimeout(()=>$('msg').textContent='',5000);}
-$('saveBtn').onclick=()=>{
-  if(!sim.truth){showMsg(t('msgNoRun'));return;}
-  if(sws[0].run||sws[1].run||sws[1].val<=0){showMsg(t('msgNeed'));return;}
-  const tr=sim.truth;
-  const dir= tr.v1p>1e-9?1:(tr.v1p<-1e-9?-1:0);
-  data[tr.cond].push({m1:tr.m1,m2:tr.m2,e:tr.e,u1:tr.u1,t1:+sws[0].val.toFixed(2),t2:+sws[1].val.toFixed(2),dir,th1:'',th2:'',tr});
-  store.set('col2_data',data);
-  showMsg(t('msgSaved')+data[tr.cond].length+' ('+(tr.cond===1?t('tbl1'):t('tbl2'))+')');
-  swResetAll(); sim.truth=null; renderTruth();
-};
-const f3=v=>(isFinite(v)?v.toFixed(3):'–');
-function v1meas(r){return r.t1>0 ? (r.dir||1)*D1/r.t1 : 0;} // zone ① and ② are both 0.5 m
-function pdiff(m,th){th=parseFloat(th); return (isFinite(th)&&Math.abs(th)>1e-9)?Math.abs(m-th)/Math.abs(th)*100:NaN;}
-function renderTables(){
-  [1,2].forEach(c=>{
-    const rows=data[c], box=$('tbl'+c);
-    if(!rows.length){box.innerHTML=`<div class="kv">${t('noData')}</div>`;return;}
-    let h=`<table><tr><th>${t('trial')}</th><th>${t('m1g')}</th><th>${t('m2g')}</th><th>${t('e')}</th><th>${t('u1')}</th><th>${t('t1')}</th><th>${t('v1m')}</th><th>${t('t2')}</th><th>${t('v2m')}</th><th>${t('v1t')}</th><th>${t('v2t')}</th><th>${t('diff1')}</th><th>${t('diff2')}</th>
-      <th class="teacherOnly">${t('trueV1')}</th><th class="teacherOnly">${t('trueT1')}</th><th class="teacherOnly">${t('trueV2')}</th><th class="teacherOnly">${t('trueT2')}</th><th></th></tr>`;
-    let s1=0,s2=0,a1=0,n1=0,a2=0,n2=0;
-    rows.forEach((r,i)=>{
-      const v1=v1meas(r), v2=D2/r.t2, d1=pdiff(v1,r.th1), d2=pdiff(v2,r.th2);
-      s1+=v1; s2+=v2; if(isFinite(d1)){a1+=d1;n1++;} if(isFinite(d2)){a2+=d2;n2++;}
-      const inp=(k)=>`<input type="number" step="0.001" inputmode="decimal" value="${r[k]}" data-c="${c}" data-r="${i}" data-k="${k}" class="thIn" style="border-color:var(--warn)">`;
-      h+=`<tr><td>${i+1}</td><td>${r.m1}</td><td>${r.m2}</td><td>${(+r.e).toFixed(2)}</td><td>${(+r.u1).toFixed(2)}</td><td>${r.t1.toFixed(2)}</td><td>${f3(v1)}</td><td>${r.t2.toFixed(2)}</td><td>${f3(v2)}</td>
-      <td>${inp('th1')}</td><td>${inp('th2')}</td><td>${isFinite(d1)?d1.toFixed(1)+' %':'–'}</td><td>${isFinite(d2)?d2.toFixed(1)+' %':'–'}</td>
-      <td class="teacherOnly">${f3(r.tr.v1p)}</td><td class="teacherOnly">${Math.abs(r.tr.v1p)>1e-9?(D1/Math.abs(r.tr.v1p)).toFixed(2):'–'}</td><td class="teacherOnly">${f3(r.tr.v2p)}</td><td class="teacherOnly">${r.tr.t2.toFixed(2)}</td>
-      <td><button class="btn small delBtn" data-c="${c}" data-r="${i}">${t('del')}</button></td></tr>`;
-    });
-    h+=`<tr><th colspan="6">${t('avg')}</th><th>${f3(s1/rows.length)}</th><th></th><th>${f3(s2/rows.length)}</th><th></th><th></th><th>${n1?(a1/n1).toFixed(1)+' %':'–'}</th><th>${n2?(a2/n2).toFixed(1)+' %':'–'}</th><th class="teacherOnly" colspan="4"></th><th></th></tr></table>`;
-    box.innerHTML=h;
-  });
-  document.querySelectorAll('.thIn').forEach(inp=>inp.onchange=()=>{data[inp.dataset.c][inp.dataset.r][inp.dataset.k]=inp.value; store.set('col2_data',data); setTimeout(renderTables,0);});
-  document.querySelectorAll('.delBtn').forEach(b=>b.onclick=()=>{data[b.dataset.c].splice(+b.dataset.r,1); store.set('col2_data',data); renderTables();});
+/* ---------- LANGUAGE ---------- */
+function applyLang(){
+  document.documentElement.lang=lang;
+  document.querySelectorAll('[data-i]').forEach(el=>el.textContent=t(el.dataset.i));
+  $('langBtn').textContent= lang==='en'?'ไทย':'EN';
+  $('credit').textContent=t('credit');
+  $('teacherBtn').classList.toggle('on',teacher);
+  renderChips();
 }
-$('clearBtn').onclick=()=>{if(confirm(lang==='en'?'Delete all recorded data?':'ลบข้อมูลทั้งหมด?')){data={1:[],2:[]};store.set('col2_data',data);renderTables();}};
-$('csvBtn').onclick=()=>{
-  let s='﻿Condition,Trial,m1 (g),m2 (g),e,u1 (m/s),t1 after (s),v1 measured (m/s),t2 after (s),v2 measured (m/s),v1 theory (student),v2 theory (student),% diff v1,% diff v2\n';
-  [1,2].forEach(c=>data[c].forEach((r,i)=>{const v1=v1meas(r),v2=D2/r.t2,d1=pdiff(v1,r.th1),d2=pdiff(v2,r.th2);
-    s+=`${c},${i+1},${r.m1},${r.m2},${(+r.e).toFixed(2)},${r.u1},${r.t1},${v1.toFixed(4)},${r.t2},${v2.toFixed(4)},${r.th1},${r.th2},${isFinite(d1)?d1.toFixed(2):''},${isFinite(d2)?d2.toFixed(2):''}\n`;}));
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([s],{type:'text/csv'})); a.download='collision_v2_data.csv'; a.click();
-};
-function renderTruth(){
-  const b=$('truthBox'); const tr=sim&&sim.truth;
-  b.innerHTML=`<b>${t('truth')}</b><br>`+(tr?`u₁ = ${f3(tr.u1)} m/s<br>v₁′ = ${f3(tr.v1p)} m/s • t₁′ = ${Math.abs(tr.v1p)>1e-9?(D1/Math.abs(tr.v1p)).toFixed(2)+' s':'– (m₁ stops)'}<br>v₂′ = ${f3(tr.v2p)} m/s • t₂′ = ${tr.t2.toFixed(2)} s`:'–');
-}
+$('langBtn').onclick=()=>{lang=lang==='en'?'th':'en'; store.set('lang',lang); applyLang();};
 
-/* ======================= TEACHER ======================= */
-$('teacherBtn').onclick=()=>{
-  $('tModal').classList.add('on'); $('pwMsg').textContent=''; $('pwIn').value=''; $('linkOut').style.display='none'; $('linkMsg').textContent='';
-  $('pwArea').style.display=teacher?'none':'block'; $('tArea').style.display=teacher?'block':'none';
-  if(teacher) loadTeacherForm(); else setTimeout(()=>$('pwIn').focus(),50);
-};
+/* ---------- TEACHER ---------- */
+function openT(){ $('tModal').classList.add('on'); $('pwMsg').textContent=''; $('pwIn').value=''; $('linkMsg').textContent=''; $('linkOut').style.display='none';
+  $('pwArea').style.display=teacher?'none':'block'; $('tArea').style.display=teacher?'block':'none'; if(teacher) loadT(); else setTimeout(()=>$('pwIn').focus(),50); }
+$('teacherBtn').onclick=openT;
 $('tClose').onclick=()=>$('tModal').classList.remove('on');
-function tryPw(){ if(sha256(normPw($('pwIn').value))===teacherPwHash){teacher=true; $('pwArea').style.display='none'; $('tArea').style.display='block'; loadTeacherForm(); refreshUI(); renderTables();} else $('pwMsg').textContent=t('pwWrong'); }
-$('pwOk').onclick=tryPw; $('pwIn').onkeydown=e=>{if(e.key==='Enter')tryPw();};
-function loadTeacherForm(){ $('tM1').value=settings.m1; $('tM2').value=settings.m2; $('tE').value=settings.e; $('tVar').value=settings.vari; $('tLock').checked=!!settings.lock; }
-function readTeacherForm(){
-  settings.m1=+$('tM1').value; settings.m2=+$('tM2').value;
-  settings.e=Math.min(0.95,Math.max(0.05,parseFloat($('tE').value)||0.6));
-  settings.vari=Math.min(15,Math.max(0,parseFloat($('tVar').value)||0));
-  settings.lock=$('tLock').checked;
-  if(!urlLocked) store.set('col2_settings',settings);
-  loadTeacherForm();
+function tryPw(){ if(sha256(normPw($('pwIn').value))===pwHash){ teacher=true; document.body.classList.add('teacher'); $('pwArea').style.display='none'; $('tArea').style.display='block'; loadT(); applyLang(); }
+  else $('pwMsg').textContent=t('pwWrong'); }
+$('pwOk').onclick=tryPw; $('pwIn').onkeydown=e=>{if(e.key==='Enter') tryPw();};
+function renderAns(){
+  const b=$('ansBox'); if(!lastRun){ b.textContent=t('noRun'); return; }
+  const r=lastRun, tt=v=>Math.abs(v)<1e-9?'– ('+t('stops')+')':(D/Math.abs(v)).toFixed(2)+' s';
+  b.innerHTML=`<b>${t('ans')}</b><br>m₁ ${r.m1} g · m₂ ${r.m2} g · e ${r.e===1?'1':r.e.toFixed(2)}<br>u₁ = ${r.u1.toFixed(3)} m/s`+
+    ` · t₁ = ${tt(r.u1)}`+
+    `<br>v₁′ = ${r.v1.toFixed(3)} m/s`+` · t₁′ = ${tt(r.v1)}`+
+    `<br>v₂′ = ${r.v2.toFixed(3)} m/s · t₂′ = ${tt(r.v2)}`;
 }
-$('tApply').onclick=()=>{readTeacherForm(); refreshUI(); resetCarts(); $('linkMsg').textContent=t('applied');};
+function loadT(){ renderAns(); $('tE').value=S.e; if($('tVar')) $('tVar').value=S.vari; $('tLock').checked=!!S.lock; }
+function readT(){ S.e=Math.min(0.95,Math.max(0.05,parseFloat($('tE').value)||0.6));
+  if($('tVar')) S.vari=Math.min(15,Math.max(0,parseFloat($('tVar').value)||0)); S.lock=$('tLock').checked; saveS(); loadT(); }
+$('tApply').onclick=()=>{ readT(); renderChips(); resetCarts(); $('linkMsg').textContent=t('applied'); };
+$('tExit').onclick=()=>{ teacher=false; document.body.classList.remove('teacher'); applyLang(); $('tModal').classList.remove('on'); };
+$('tLink').onclick=()=>{
+  readT(); renderChips();
+  const s={m1:S.m1,m2:S.m2,e:S.e,vari:S.vari,lock:S.lock};
+  let salt=''; const ch='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; for(let i=0;i<16;i++) salt+=ch[Math.floor(Math.random()*ch.length)];
+  const url=location.origin+location.pathname+'?k='+encodeURIComponent(salt+btoa(encodeURIComponent(JSON.stringify(s))).split('').reverse().join(''));
+  $('linkOut').style.display='block'; $('linkOut').value=url;
+  if(location.origin==='null'||location.protocol==='file:'){ $('linkMsg').textContent=t('linkNull'); return; }
+  const done=()=>$('linkMsg').textContent=t('linkCopied');
+  if(navigator.clipboard) navigator.clipboard.writeText(url).then(done,()=>{$('linkOut').select();document.execCommand('copy');done();}); else {$('linkOut').select();document.execCommand('copy');done();}
+};
 $('pwChgBtn').onclick=()=>{
   const m=$('pwChgMsg');
   if(sha256($('adEmail').value.trim().toLowerCase())!==ADMIN_EMAIL_HASH || sha256(normPw($('adPw').value))!==ADMIN_PW_HASH){ m.textContent=t('pwChgBad'); return; }
   const a=normPw($('newPw').value), b=normPw($('newPw2').value);
-  if(!a || a!==b){ m.textContent=t('pwChgMismatch'); return; }
-  teacherPwHash=sha256(a); store.set('col2_pwh',teacherPwHash);
-  ['adEmail','adPw','newPw','newPw2'].forEach(id=>$(id).value='');
-  m.textContent=t('pwChgOk');
+  if(!a||a!==b){ m.textContent=t('pwChgMismatch'); return; }
+  pwHash=sha256(a); store.set('pwh',pwHash); ['adEmail','adPw','newPw','newPw2'].forEach(id=>$(id).value=''); m.textContent=t('pwChgOk');
 };
-$('tExit').onclick=()=>{teacher=false; refreshUI(); renderTables(); $('tModal').classList.remove('on');};
-$('tLink').onclick=()=>{
-  readTeacherForm(); refreshUI();
-  const s={m1:settings.m1,m2:settings.m2,e:settings.e,vari:settings.vari,lock:settings.lock};
-  let salt=''; const ch='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  for(let i=0;i<16;i++) salt+=ch[Math.floor(Math.random()*ch.length)];
-  const tok=salt+btoa(encodeURIComponent(JSON.stringify(s))).split('').reverse().join('');
-  const url=location.origin+location.pathname+'?k='+encodeURIComponent(tok);
-  $('linkOut').style.display='block'; $('linkOut').value=url;
-  if(location.origin==='null'||location.protocol==='file:'){ $('linkMsg').textContent=t('linkNull'); return; }
-  const done=()=>$('linkMsg').textContent=t('linkCopied');
-  if(navigator.clipboard) navigator.clipboard.writeText(url).then(done,()=>{$('linkOut').select();document.execCommand('copy');done();});
-  else{$('linkOut').select();document.execCommand('copy');done();}
-};
-// hidden 5-tap on title also opens teacher panel
-let taps=0,tapT=0;
-$('title').addEventListener('click',()=>{const n=Date.now(); taps= n-tapT<600?taps+1:1; tapT=n; if(taps>=5){taps=0;$('teacherBtn').click();}});
 
-/* ======================= START ======================= */
-resetCarts();
-applyLang();
-resize();
-requestAnimationFrame(loop);
+/* ---------- START ---------- */
+resetCarts(); applyLang(); resize(); sws.forEach(swShow);
+let last=performance.now();
+(function loop(now){ const dt=Math.min(0.05,(now-last)/1000); last=now; for(let i=0;i<4;i++) step(dt/4); draw(); sws.forEach(w=>{if(w.run) swShow(w);}); requestAnimationFrame(loop); })(last);
 </script>
 </body>
 </html>
